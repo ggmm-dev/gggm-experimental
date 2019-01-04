@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.8.1",
     "ggmm-react-lib": "^1.1.0",
     "lodash": "^4.17.11",
     "react": "^16.7.0",

@@ -12,3 +12,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+* {
+  transition: 0.5s;
+}
+
+.textField label {
+  color: #6d8691 !important;
+}
+.textField input {
+  color: #00eadb;
+}
