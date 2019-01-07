@@ -1,36 +1,23 @@
 import React, { Component } from "react";
 
-import { Hero } from "ggmm-react-lib";
+import { Hero, TwoCol } from "ggmm-react-lib";
 import _ from "lodash";
+
 import styled from "styled-components";
 import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
+import Modules from "./Modules";
+import Sections from "./Sections";
+import { fire } from "./firebase/firebase";
+import { TwoColDefault, HeroDefault } from "./module-defaults";
 
-const Input = styled.input`
-    width: 100%;
-  `,
-  Admin = styled.div`
+import { withRouter } from "react-router-dom";
+
+const Admin = styled.div`
     display: flex;
     flex-wrap: wrap;
     width: 100%;
   `,
-  Values = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    width: 50%;
-  `,
-  Button = styled.div`
-    background: #00eadb;
-    color: rgb(1, 9, 14);
-    text-align: center;
-    padding: 7px;
-    border-radius: 25px;
-    margin-top: 50px;
-    cursor: pointer;
-    &:hover {
-      filter: brightness(110%);
-    }
-  `,
-  blue = "#00EADB",
   Edit = styled.div`
     position: fixed;
     background: rgb(1, 9, 14);
@@ -38,12 +25,24 @@ const Input = styled.input`
     top: 0;
     z-index: 10;
     height: 35px;
-
+    .edit-container {
+      width: 98%;
+      margin: 0 auto;
+    }
     i {
-      width: 20px;
+      color: #00eadb;
+    }
+    .icon-bar {
+      display: flex;
       position: absolute;
       right: 10px;
       top: 10px;
+      i {
+        margin-right: 10px;
+        &:last-child {
+          margin-right: 0px;
+        }
+      }
     }
   `,
   Container = styled.div`
@@ -53,38 +52,89 @@ const Input = styled.input`
   `,
   Editor = styled.div`
     width: 50%;
+  `,
+  ModuleContainer = styled.div`
+    width: 50%;
+    background: linear-gradient(to bottom, #001b2f 0%, #01090e 100%);
+    height: 100vh;
   `;
 
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       admin: true,
-      edit: true,
-      hero: {
-        headline: "Headline",
-        subheadline: "Subheadline",
-        image: "https://source.unsplash.com/random",
-        type: "image",
-        overlay: true,
-        buttonUrl: "/",
-        height: "50",
-        buttonTitle: "Start"
-      }
+      edit: false,
+      modules: true,
+      hero: [],
+      dragKey: 0,
+      pageTitle: "Default",
+      children: [],
+      Hero: HeroDefault
     };
   }
 
+  saveConfig = config => event => {
+    fire
+      .database()
+      .ref("pages/" + this.state.pageTitle)
+      .update(
+        {
+          children: this.state.children
+        },
+        () => this.props.history.push("/" + this.state.pageTitle)
+      );
+  };
+
+  newSection = section => event => {
+    const rand = Math.floor(Math.random() * 100000000);
+
+    this.setState({
+      children: {
+        ...this.state.children,
+        [rand]: {
+          module: section,
+          data: this.state[section]
+        }
+      }
+    });
+  };
+
+  componentDidMount() {
+    const { router, params, location, routes } = this.props;
+
+    fire
+      .database()
+      .ref("pages" + location.pathname + "/children")
+      .once("value")
+      .then(snapshot => {
+        const data = snapshot.val();
+        this.setState({
+          children: data
+        });
+      });
+  }
+
+  saveModule = () => event => {
+    const { router, params, location, routes } = this.props;
+
+    fire
+      .database()
+      .ref("pages" + location.pathname + "/children")
+      .update({
+        children: this.state.hero
+      });
+  };
+
   renderAdmin = state => {
-    const length = Object.keys(state).length;
     if (this.state.admin) {
       return _.map(state, (value, key) => {
         return (
-          <Admin>
+          <Admin key={key}>
             <TextField
               className="textField"
               id="standard-name"
               label={key}
-              placeholder={value}
               onChange={this.editSection(key)}
               margin="normal"
             />
@@ -92,6 +142,12 @@ class App extends Component {
         );
       });
     }
+  };
+
+  handleChange = name => event => {
+    this.setState({
+      [name]: event.target.value
+    });
   };
 
   editSection = name => e => {
@@ -103,8 +159,14 @@ class App extends Component {
     });
   };
 
+  enableIcon = name => e => {
+    this.setState({
+      edit: !this.state.edit,
+      modules: false
+    });
+  };
+
   render() {
-    const hero = this.state.hero;
     return (
       <div className="App">
         <link
@@ -114,13 +176,42 @@ class App extends Component {
           crossOrigin="anonymous"
         />
         <Edit>
-          <i
-            style={{ color: "#00EADB", opacity: this.state.edit ? "1" : "0.6" }}
-            className="fas fa-bolt"
-            onClick={() => this.setState({ edit: !this.state.edit })}
-          />
+          <div className="edit-container">
+            <TextField
+              className="textField"
+              id="standard-name"
+              placeholder="Give it a name"
+              onChange={this.handleChange("pageTitle")}
+              margin="normal"
+            />
+            <div className="icon-bar">
+              <i onClick={this.saveConfig()} className="far fa-save" />
+              <i
+                style={{
+                  opacity: this.state.modules ? "1" : "0.6"
+                }}
+                className="far fa-vector-square"
+                onClick={() =>
+                  this.setState({
+                    modules: !this.state.modules,
+                    edit: false
+                  })
+                }
+              />
+            </div>
+          </div>
         </Edit>
+
         <Container>
+          <ModuleContainer
+            style={{
+              opacity: this.state.modules ? "1" : "0",
+              width: this.state.modules ? "20%" : "0%",
+              padding: this.state.modules ? "5%" : "0%"
+            }}
+          >
+            <Modules newSection={this.newSection} />
+          </ModuleContainer>
           <Editor
             style={{
               background: "linear-gradient(to bottom, #00121f 0%,#01090e 100%)",
@@ -131,23 +222,30 @@ class App extends Component {
             }}
           >
             {this.renderAdmin(this.state.hero)}
-            <Button>Save</Button>
+            <Button
+              style={{
+                background: "#00EADB",
+                color: "rgb(1, 9, 14)",
+                width: "100%",
+                borderRadius: "25px"
+              }}
+              variant="contained"
+              color="primary"
+              onClick={this.saveModule()}
+            >
+              Save
+            </Button>
           </Editor>
           <div
             className="wrapper"
             style={{
-              width: this.state.edit ? "70%" : "100%"
+              width: this.state.edit || this.state.modules ? "70%" : "100%"
             }}
           >
-            <Hero
-              type={hero.type} //video or image
-              headline={hero.headline}
-              subheadline={hero.subheadline}
-              overlay={hero.overlay} //disables darkened overlay
-              buttonUrl={hero.buttonUrl}
-              height={hero.height} // represents percentage height
-              buttonTitle={hero.buttonTitle}
-              imageUrl={hero.image}
+            <Sections
+              enableIcon={this.enableIcon()}
+              hero={this.state.hero}
+              children={this.state.children}
             />
           </div>
         </Container>
@@ -156,4 +254,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);

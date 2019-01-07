@@ -23,3 +23,7 @@ code {
 .textField input {
   color: #00eadb;
 }
+
+.textField {
+  margin: 0 !important;
+}
