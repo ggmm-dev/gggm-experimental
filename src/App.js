@@ -8,7 +8,11 @@ import Button from "@material-ui/core/Button";
 import Modules from "./Modules";
 import Sections from "./Sections";
 import { fire } from "./firebase/firebase";
-import { TwoColDefault, HeroDefault } from "./module-defaults";
+import {
+  TwoColDefault,
+  HeroDefault,
+  TextHeadlineDefault
+} from "./module-defaults";
 
 import { withRouter } from "react-router-dom";
 
@@ -77,7 +81,8 @@ class App extends Component {
       pageTitle: "Default",
       children: [],
       Hero: HeroDefault,
-      TwoCol: TwoColDefault
+      TwoCol: TwoColDefault,
+      TextHeadline: TextHeadlineDefault
     };
   }
 
@@ -94,7 +99,7 @@ class App extends Component {
   };
 
   newSection = section => event => {
-    const rand = Math.floor(Math.random() * 100000000);
+    const rand = new Date();
 
     this.setState({
       children: {
@@ -111,11 +116,11 @@ class App extends Component {
     });
   };
 
-  enableIcon = name => e => {
-    console.log(name);
+  enableIcon = name => event => {
     this.setState({
       edit: !this.state.edit,
-      modules: false
+      modules: false,
+      currentlyEditing: name
     });
   };
 
@@ -145,23 +150,25 @@ class App extends Component {
       });
   };
 
-  renderAdmin = state => {
-    if (this.state.admin) {
-      return _.map(state, (value, key) => {
+  renderAdmin() {
+    const blockId = this.state.currentlyEditing,
+      fields = _.get(this.state.children, blockId);
+    if (fields) {
+      return _.map(fields.data, (value, key) => {
         return (
           <Admin key={key}>
             <TextField
               className="textField"
               id="standard-name"
               label={key}
-              onChange={this.editSection(key)}
+              onChange={this.editSection(blockId, key, fields.module)}
               margin="normal"
             />
           </Admin>
         );
       });
     }
-  };
+  }
 
   handleChange = name => event => {
     this.setState({
@@ -169,11 +176,20 @@ class App extends Component {
     });
   };
 
-  editSection = name => e => {
+  editSection = (blockId, key, moduleType) => e => {
+    const blockId = this.state.currentlyEditing,
+      fields = _.get(this.state.children, blockId);
+
     this.setState({
-      hero: {
-        ...this.state.hero,
-        [name]: e.target.value
+      children: {
+        ...this.state.children,
+        [blockId]: {
+          module: moduleType,
+          data: {
+            ...fields.data,
+            [key]: e.target.value
+          }
+        }
       }
     });
   };
@@ -264,7 +280,6 @@ class App extends Component {
           >
             <Sections
               enableIcon={this.enableIcon}
-              hero={this.state.hero}
               children={this.state.children}
             />
           </div>

@@ -17,7 +17,18 @@ export const TwoColDefault = {
     subheadline: "Subheadline",
     overlay: true, //disables darkened overlay
     buttonUrl: "/",
-    height: "70", // represents percentage height
+    height: "50", // represents percentage height
     buttonTitle: "Button",
     imageUrl: "https://source.unsplash.com/random" // src of image for background if type is image
+  },
+  TextHeadlineDefault = {
+    align: "center",
+    margin: "auto",
+    cat: "Cat",
+    width: "500px",
+    maxWidth: "400px",
+    padding: "80px",
+    subheadline:
+      "Bacon ipsum dolor amet beef ribs drumstick swine cow brisket, flank pancetta spare ribs strip steak salami turkey ball tip ground round ham turducken.",
+    headline: "Headline"
   };
