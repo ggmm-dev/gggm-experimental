@@ -1,3 +1,18 @@
+const threeColData = {
+  0: {
+    content: "<h2>Headline</h2><p>Descriptive text for each box</p>",
+    image: "https://source.unsplash.com/user/williamkarl"
+  },
+  1: {
+    content: "<h2>Headline</h2><p>Descriptive text for each box</p>",
+    image: "https://source.unsplash.com/user/timmossholder"
+  },
+  2: {
+    content: "<h2>Headline</h2><p>Descriptive text for each box</p>",
+    image: "https://source.unsplash.com/user/braydenlaw"
+  }
+};
+
 export const TwoColDefault = {
     alignItems: "center",
     height: "400px", //container height
@@ -20,6 +35,14 @@ export const TwoColDefault = {
     height: "50", // represents percentage height
     buttonTitle: "Button",
     imageUrl: "https://source.unsplash.com/random" // src of image for background if type is image
+  },
+  ThreeColDefault = {
+    fullWidth: false,
+    textAlign: "center",
+    type: "imageCover",
+    imageHeight: "300px",
+    text: true,
+    data: threeColData
   },
   TextHeadlineDefault = {
     align: "center",

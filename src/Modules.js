@@ -7,6 +7,7 @@ import { fire } from "./firebase/firebase";
 const Module = styled.div`
     display: flex;
     li {
+      cursor: pointer;
       margin-right: 30px;
       margin-bottom: 30px;
       border: 1px solid gray;
@@ -14,6 +15,10 @@ const Module = styled.div`
       list-style-type: none;
       color: gray;
       font-size: 20px;
+      &:hover {
+        background: rgba(0, 234, 219, 0.2);
+        color: white;
+      }
     }
   `,
   Container = styled.div`

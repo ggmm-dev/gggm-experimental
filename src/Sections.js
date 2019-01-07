@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { Hero, TwoCol, TextHeadline } from "ggmm-react-lib";
+import { Hero, TwoCol, TextHeadline, ThreeCol } from "ggmm-react-lib";
 import _ from "lodash";
 
 class Sections extends Component {
@@ -56,6 +56,20 @@ class Sections extends Component {
             maxWidth={module.maxWidth}
             subheadline={module.subheadline}
             headline={module.headline}
+          />
+        );
+      } else if (child.module === "ThreeCol") {
+        return (
+          <ThreeCol
+            id={module.id}
+            editor={true}
+            enableIcon={this.props.enableIcon}
+            fullWidth={module.fullWidth}
+            textAlign={module.textAlign}
+            type={module.type}
+            imageHeight={module.imageHeight}
+            text={module.text}
+            data={module.data}
           />
         );
       }

@@ -11,6 +11,7 @@ import { fire } from "./firebase/firebase";
 import {
   TwoColDefault,
   HeroDefault,
+  ThreeColDefault,
   TextHeadlineDefault
 } from "./module-defaults";
 
@@ -82,6 +83,7 @@ class App extends Component {
       children: [],
       Hero: HeroDefault,
       TwoCol: TwoColDefault,
+      ThreeCol: ThreeColDefault,
       TextHeadline: TextHeadlineDefault
     };
   }
@@ -267,13 +269,16 @@ class App extends Component {
               onClick={() => this.setState({ edit: false })}
               className="fal fa-times closer"
             />
+            <h2>Edit Block</h2>
+
             {this.renderAdmin(this.state.hero)}
             <Button
               style={{
                 background: "#00EADB",
                 color: "rgb(1, 9, 14)",
                 width: "100%",
-                borderRadius: "25px"
+                borderRadius: "25px",
+                marginTop: "30px"
               }}
               variant="contained"
               color="primary"
