@@ -2,20 +2,18 @@ import React, { Component } from "react";
 
 import { Hero, TwoCol } from "ggmm-react-lib";
 import _ from "lodash";
-import styled from "styled-components";
 
 class Sections extends Component {
   renderChildren() {
     const props = this.props;
-    return _.map(props.children, child => {
-      const hero = this.props.hero,
-        module = child.data;
+    return _.map(_.reverse(props.children), child => {
+      const module = child.data;
       if (child.module === "TwoCol") {
         return (
           <TwoCol
             enableIcon={this.props.enableIcon}
             editor={true}
-            // alignItems={module.alignItems}
+            alignItems={module.alignItems}
             height={module.height} //container height
             left={module.left}
             leftAlt={module.leftAlt}

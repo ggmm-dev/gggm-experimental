@@ -5,7 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^3.8.1",
     "firebase": "^5.7.2",
-    "ggmm-react-lib": "^1.2.1",
+    "ggmm-react-lib": "^1.2.2",
     "lodash": "^4.17.11",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",

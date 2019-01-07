@@ -17,7 +17,7 @@ export const TwoColDefault = {
     subheadline: "Subheadline",
     overlay: true, //disables darkened overlay
     buttonUrl: "/",
-    height: "50", // represents percentage height
+    height: "70", // represents percentage height
     buttonTitle: "Button",
     imageUrl: "https://source.unsplash.com/random" // src of image for background if type is image
   };

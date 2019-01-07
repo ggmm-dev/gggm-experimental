@@ -8,6 +8,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+h2 {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #57758e;
+  margin-bottom: 40px;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
@@ -26,4 +34,15 @@ code {
 
 .textField {
   margin: 0 !important;
+}
+
+/* TEMP */
+
+.btn {
+  background: black;
+  color: white;
+  text-decoration: none;
+  padding: 15px 30px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }

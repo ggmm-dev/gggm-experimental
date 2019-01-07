@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-import { Hero, TwoCol } from "ggmm-react-lib";
 import _ from "lodash";
 
 import styled from "styled-components";
@@ -53,16 +52,23 @@ const Admin = styled.div`
   Editor = styled.div`
     width: 50%;
   `,
+  Fill = styled.div`
+    width: 50%;
+    height: 100vh;
+  `,
   ModuleContainer = styled.div`
     width: 50%;
     background: linear-gradient(to bottom, #001b2f 0%, #01090e 100%);
     height: 100vh;
+    position: fixed;
+    z-index: 99;
   `;
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      currentlyEditing: "",
       admin: true,
       edit: false,
       modules: true,
@@ -70,7 +76,8 @@ class App extends Component {
       dragKey: 0,
       pageTitle: "Default",
       children: [],
-      Hero: HeroDefault
+      Hero: HeroDefault,
+      TwoCol: TwoColDefault
     };
   }
 
@@ -93,15 +100,27 @@ class App extends Component {
       children: {
         ...this.state.children,
         [rand]: {
+          id: rand,
           module: section,
-          data: this.state[section]
+          data: {
+            ...this.state[section],
+            id: rand
+          }
         }
       }
     });
   };
 
+  enableIcon = name => e => {
+    console.log(name);
+    this.setState({
+      edit: !this.state.edit,
+      modules: false
+    });
+  };
+
   componentDidMount() {
-    const { router, params, location, routes } = this.props;
+    const { location } = this.props;
 
     fire
       .database()
@@ -116,7 +135,7 @@ class App extends Component {
   }
 
   saveModule = () => event => {
-    const { router, params, location, routes } = this.props;
+    const { location } = this.props;
 
     fire
       .database()
@@ -159,13 +178,6 @@ class App extends Component {
     });
   };
 
-  enableIcon = name => e => {
-    this.setState({
-      edit: !this.state.edit,
-      modules: false
-    });
-  };
-
   render() {
     return (
       <div className="App">
@@ -203,6 +215,13 @@ class App extends Component {
         </Edit>
 
         <Container>
+          <Fill
+            style={{
+              opacity: this.state.modules || this.state.edit ? "1" : "0",
+              width: this.state.modules || this.state.edit ? "20%" : "0%",
+              padding: this.state.modules || this.state.edit ? "5%" : "0%"
+            }}
+          />
           <ModuleContainer
             style={{
               opacity: this.state.modules ? "1" : "0",
@@ -216,6 +235,7 @@ class App extends Component {
             style={{
               background: "linear-gradient(to bottom, #00121f 0%,#01090e 100%)",
               height: "100vh",
+              position: "fixed",
               opacity: this.state.edit ? "1" : "0",
               width: this.state.edit ? "20%" : "0%",
               padding: this.state.edit ? "5%" : "0%"
@@ -243,7 +263,7 @@ class App extends Component {
             }}
           >
             <Sections
-              enableIcon={this.enableIcon()}
+              enableIcon={this.enableIcon}
               hero={this.state.hero}
               children={this.state.children}
             />
