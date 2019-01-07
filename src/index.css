@@ -8,6 +8,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.closer {
+  color: white;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+}
+
 h2 {
   text-transform: uppercase;
   letter-spacing: 4px;

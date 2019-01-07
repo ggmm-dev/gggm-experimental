@@ -99,7 +99,7 @@ class App extends Component {
   };
 
   newSection = section => event => {
-    const rand = new Date();
+    const rand = new Date().valueOf();
 
     this.setState({
       children: {
@@ -118,7 +118,7 @@ class App extends Component {
 
   enableIcon = name => event => {
     this.setState({
-      edit: !this.state.edit,
+      edit: true,
       modules: false,
       currentlyEditing: name
     });
@@ -150,9 +150,11 @@ class App extends Component {
       });
   };
 
-  renderAdmin() {
+  renderAdmin = () => {
     const blockId = this.state.currentlyEditing,
       fields = _.get(this.state.children, blockId);
+    console.log("Admin Rendered with id: " + blockId);
+
     if (fields) {
       return _.map(fields.data, (value, key) => {
         return (
@@ -168,7 +170,7 @@ class App extends Component {
         );
       });
     }
-  }
+  };
 
   handleChange = name => event => {
     this.setState({
@@ -245,6 +247,10 @@ class App extends Component {
               padding: this.state.modules ? "5%" : "0%"
             }}
           >
+            <i
+              onClick={() => this.setState({ modules: false })}
+              className="fal fa-times closer"
+            />
             <Modules newSection={this.newSection} />
           </ModuleContainer>
           <Editor
@@ -257,6 +263,10 @@ class App extends Component {
               padding: this.state.edit ? "5%" : "0%"
             }}
           >
+            <i
+              onClick={() => this.setState({ edit: false })}
+              className="fal fa-times closer"
+            />
             {this.renderAdmin(this.state.hero)}
             <Button
               style={{
