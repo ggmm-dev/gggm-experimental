@@ -12,7 +12,10 @@ import {
   TwoColDefault,
   HeroDefault,
   ThreeColDefault,
-  TextHeadlineDefault
+  TextHeadlineDefault,
+  GridDefault,
+  FullSliderDefault,
+  MosaicDefault
 } from "./module-defaults";
 
 import { withRouter } from "react-router-dom";
@@ -81,7 +84,10 @@ class App extends Component {
       dragKey: 0,
       pageTitle: "Default",
       children: [],
+      FullSlider: FullSliderDefault,
+      Mosaic: MosaicDefault,
       Hero: HeroDefault,
+      Grid: GridDefault,
       TwoCol: TwoColDefault,
       ThreeCol: ThreeColDefault,
       TextHeadline: TextHeadlineDefault
@@ -102,12 +108,18 @@ class App extends Component {
 
   newSection = section => event => {
     const rand = new Date().valueOf();
+    let length = 0;
+    if (this.state.children) {
+      const childLength = Object.keys(this.state.children).length - 1;
+      length = childLength + 1;
+    }
 
     this.setState({
       children: {
         ...this.state.children,
-        [rand]: {
+        [length]: {
           id: rand,
+          pos: length,
           module: section,
           data: {
             ...this.state[section],
@@ -124,6 +136,34 @@ class App extends Component {
       modules: false,
       currentlyEditing: name
     });
+  };
+
+  deleteBlock = name => event => {
+    const array = this.state.children;
+    delete array[name];
+    this.setState({
+      children: array
+    });
+  };
+
+  moveItem(arr, from, to) {
+    let cutOut = arr.splice(from, 1)[0]; // cut the element at index 'from'
+    arr.splice(to, 0, cutOut); // insert it at index 'to'
+
+    this.setState({
+      children: arr
+    });
+  }
+
+  blockUp = name => event => {
+    const data = this.state.children;
+    const index = data.findIndex(x => x.id == name) - 1;
+    this.moveItem(name, index);
+  };
+  blockDown = name => event => {
+    const data = this.state.children;
+    const index = data.findIndex(x => x.id == name) + 1;
+    this.moveItem(data, data[name], index);
   };
 
   componentDidMount() {
@@ -155,7 +195,6 @@ class App extends Component {
   renderAdmin = () => {
     const blockId = this.state.currentlyEditing,
       fields = _.get(this.state.children, blockId);
-    console.log("Admin Rendered with id: " + blockId);
 
     if (fields) {
       return _.map(fields.data, (value, key) => {
@@ -212,7 +251,7 @@ class App extends Component {
             <TextField
               className="textField"
               id="standard-name"
-              placeholder="Give it a name"
+              placeholder="Page Name"
               onChange={this.handleChange("pageTitle")}
               margin="normal"
             />
@@ -294,6 +333,9 @@ class App extends Component {
             }}
           >
             <Sections
+              blockUp={this.blockUp}
+              blockDown={this.blockDown}
+              deleteBlock={this.deleteBlock}
               enableIcon={this.enableIcon}
               children={this.state.children}
             />

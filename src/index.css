@@ -15,6 +15,10 @@ body {
   right: 30px;
 }
 
+i {
+  cursor: pointer;
+}
+
 h2 {
   text-transform: uppercase;
   letter-spacing: 4px;
