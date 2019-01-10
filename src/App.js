@@ -237,10 +237,11 @@ class App extends Component {
 
   renderAdmin = () => {
     const blockId = this.state.currentlyEditing,
-      fields = _.get(this.state.children, blockId);
-
-    if (fields) {
-      return _.map(fields.data, (value, key) => {
+      index = this.state.children,
+      fields = _.findIndex(index, { id: blockId }),
+      fieldData = index[fields];
+    if (fieldData) {
+      return _.map(fieldData.data, (value, key) => {
         return (
           <Admin key={key}>
             <TextField

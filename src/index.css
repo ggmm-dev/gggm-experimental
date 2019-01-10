@@ -18,6 +18,7 @@ body {
   position: relative;
   left: 50%;
   top: 50px;
+  -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
 }
 
 .phone::-webkit-scrollbar {
@@ -27,7 +28,7 @@ body {
 
 .top-nav {
   width: 50%;
-  position: relative;
+  position: absolute;
   background: #051626;
   height: 50px;
   margin: 0 auto;
