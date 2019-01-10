@@ -39,6 +39,7 @@ const Admin = styled.div`
     i {
       color: #00eadb;
     }
+
     .icon-bar {
       display: flex;
       position: absolute;
@@ -76,6 +77,9 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      mobile: true,
+      desktop: false,
+      tablet: false,
       currentlyEditing: "",
       admin: true,
       edit: false,
@@ -104,6 +108,33 @@ class App extends Component {
         },
         () => this.props.history.push("/" + this.state.pageTitle)
       );
+  };
+
+  breakpointChange = type => e => {
+    if (type === "mobile") {
+      this.setState({
+        ...this.state,
+        mobile: true,
+        tablet: false,
+        desktop: false
+      });
+    }
+    if (type === "tablet") {
+      this.setState({
+        ...this.state,
+        mobile: false,
+        tablet: true,
+        desktop: false
+      });
+    }
+    if (type === "desktop") {
+      this.setState({
+        ...this.state,
+        mobile: false,
+        tablet: false,
+        desktop: true
+      });
+    }
   };
 
   newSection = section => event => {
@@ -139,10 +170,12 @@ class App extends Component {
   };
 
   deleteBlock = name => event => {
-    const array = this.state.children;
-    delete array[name];
+    const data = this.state.children,
+      index = _.findIndex(data, { id: name });
+    data.splice(index, 1);
+
     this.setState({
-      children: array
+      children: data
     });
   };
 
@@ -156,18 +189,27 @@ class App extends Component {
   }
 
   blockUp = name => event => {
-    const data = this.state.children;
-    const index = data.findIndex(x => x.id == name) - 1;
-    this.moveItem(name, index);
+    const data = this.state.children,
+      index = _.findIndex(data, { id: name });
+
+    if (index > 0) {
+      this.moveItem(data, index, index - 1);
+    }
   };
+
   blockDown = name => event => {
-    const data = this.state.children;
-    const index = data.findIndex(x => x.id == name) + 1;
-    this.moveItem(data, data[name], index);
+    const data = this.state.children,
+      index = _.findIndex(data, { id: name }),
+      length = Object.keys(data).length - 1;
+
+    if (index < length) {
+      this.moveItem(data, index, index + 1);
+    }
   };
 
   componentDidMount() {
-    const { location } = this.props;
+    const { location } = this.props,
+      pageTitle = location.pathname.replace("/", "");
 
     fire
       .database()
@@ -176,6 +218,7 @@ class App extends Component {
       .then(snapshot => {
         const data = snapshot.val();
         this.setState({
+          pageTitle: pageTitle,
           children: data
         });
       });
@@ -237,6 +280,50 @@ class App extends Component {
     });
   };
 
+  renderSections() {
+    return (
+      <Sections
+        blockUp={this.blockUp}
+        blockDown={this.blockDown}
+        deleteBlock={this.deleteBlock}
+        enableIcon={this.enableIcon}
+        children={this.state.children}
+      />
+    );
+  }
+
+  renderWrapper() {
+    if (this.state.desktop) {
+      return (
+        <div
+          className="wrapper"
+          style={{
+            width: this.state.edit || this.state.modules ? "70%" : "100%"
+          }}
+        >
+          {this.renderSections()}
+        </div>
+      );
+    } else if (this.state.mobile) {
+      return (
+        <div
+          className="wrapper"
+          style={{
+            width: this.state.edit || this.state.modules ? "355px" : "100%"
+          }}
+        >
+          <div className="phone">
+            <div className="top-nav">
+              <div className="sound" />
+              <div className="camera" />
+            </div>
+            {this.renderSections()}
+          </div>
+        </div>
+      );
+    }
+  }
+
   render() {
     return (
       <div className="App">
@@ -251,11 +338,32 @@ class App extends Component {
             <TextField
               className="textField"
               id="standard-name"
-              placeholder="Page Name"
+              placeholder={this.state.pageTitle}
               onChange={this.handleChange("pageTitle")}
               margin="normal"
             />
+
             <div className="icon-bar">
+              <div
+                style={{ marginRight: "60px", display: "block" }}
+                className="breakpoints"
+              >
+                <i
+                  onClick={this.breakpointChange("desktop")}
+                  style={{ opacity: this.state.desktop ? "1" : ".6" }}
+                  className="fas fa-desktop-alt"
+                />
+                <i
+                  onClick={this.breakpointChange("tablet")}
+                  style={{ opacity: this.state.tablet ? "1" : ".6" }}
+                  className="fas fa-tablet-android-alt"
+                />
+                <i
+                  onClick={this.breakpointChange("mobile")}
+                  style={{ opacity: this.state.mobile ? "1" : ".6" }}
+                  className="far fa-mobile"
+                />
+              </div>
               <i onClick={this.saveConfig()} className="far fa-save" />
               <i
                 style={{
@@ -273,7 +381,9 @@ class App extends Component {
           </div>
         </Edit>
 
-        <Container>
+        <Container
+          style={{ background: this.state.mobile ? "#010a10" : "white" }}
+        >
           <Fill
             style={{
               opacity: this.state.modules || this.state.edit ? "1" : "0",
@@ -326,20 +436,7 @@ class App extends Component {
               Save
             </Button>
           </Editor>
-          <div
-            className="wrapper"
-            style={{
-              width: this.state.edit || this.state.modules ? "70%" : "100%"
-            }}
-          >
-            <Sections
-              blockUp={this.blockUp}
-              blockDown={this.blockDown}
-              deleteBlock={this.deleteBlock}
-              enableIcon={this.enableIcon}
-              children={this.state.children}
-            />
-          </div>
+          {this.renderWrapper()}
         </Container>
       </div>
     );

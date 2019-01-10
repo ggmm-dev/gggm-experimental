@@ -8,6 +8,57 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.phone {
+  background: white;
+  border: 10px solid #051626;
+  border-radius: 50px;
+  height: 812px;
+  width: 375px;
+  overflow: scroll;
+  position: relative;
+  left: 50%;
+  top: 50px;
+}
+
+.phone::-webkit-scrollbar {
+  width: 0px; /* remove scrollbar space */
+  background: transparent; /* optional: just make scrollbar invisible */
+}
+
+.top-nav {
+  width: 50%;
+  position: relative;
+  background: #051626;
+  height: 50px;
+  margin: 0 auto;
+  top: -25px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  border-radius: 25px;
+}
+
+.sound,
+.camera {
+  background: #01294a;
+  height: 10px;
+  position: absolute;
+  z-index: 2;
+  top: 29px;
+}
+
+.sound {
+  width: 70px;
+  left: 50px;
+  border-radius: 25px;
+}
+
+.camera {
+  left: 130px;
+  border-radius: 50%;
+  width: 10px;
+}
+
 .closer {
   color: white;
   position: absolute;
