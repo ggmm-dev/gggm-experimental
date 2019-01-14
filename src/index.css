@@ -99,6 +99,32 @@ code {
   margin: 0 !important;
 }
 
+.input-row {
+  display: flex;
+}
+
+.ui-icon {
+  background: transparent;
+  color: #00eadb;
+  border: 0px;
+  width: 20px !important;
+  font-size: 25px;
+}
+
+.input-row input {
+  width: 42%;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+/* inputs */
+
+.input-block {
+  padding: 10px;
+  border: 0px;
+  font-size: 16px;
+}
+
 /* TEMP */
 
 .btn {
