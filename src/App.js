@@ -7,6 +7,8 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Modules from "./Modules";
 import NavEditor from "./NavEditor";
+import SlugEditor from "./SlugEditor";
+import IconBar from "./IconBar";
 import Sections from "./Sections";
 import { NavBar } from "ggmm-react-lib";
 import { fire } from "./firebase/firebase";
@@ -69,7 +71,7 @@ const Admin = styled.div`
   `,
   ModuleContainer = styled.div`
     width: 50%;
-    background: linear-gradient(to bottom, #001b2f 0%, #01090e 100%);
+    background: #f4f5f7;
     height: 100vh;
     position: fixed;
     z-index: 99;
@@ -82,18 +84,19 @@ class App extends Component {
       mobile: false,
       desktop: true,
       tablet: false,
-      openNav: true,
       header: [],
       menuItem: [{ name: "", link: "" }],
       navType: "left",
       currentlyEditing: "",
       admin: true,
+      openNav: false,
       edit: false,
       modules: false,
       hero: [],
       dragKey: 0,
       pageTitle: "Default",
       children: [],
+      children2: [],
       FullSlider: FullSliderDefault,
       Mosaic: MosaicDefault,
       Hero: HeroDefault,
@@ -124,6 +127,14 @@ class App extends Component {
     });
   };
 
+  openModule = name => event => {
+    this.setState({
+      modules: !this.state.modules,
+      edit: false,
+      openNav: false
+    });
+  };
+
   breakpointChange = type => e => {
     if (type === "mobile") {
       this.setState({
@@ -151,6 +162,16 @@ class App extends Component {
     }
   };
 
+  newPage = () => e => {
+    const { location } = this.props;
+    this.props.history.push("/");
+
+    this.setState({
+      children: [],
+      pageTitle: ""
+    });
+  };
+
   newSection = section => event => {
     const rand = new Date().valueOf();
     let length = 0;
@@ -159,19 +180,18 @@ class App extends Component {
       length = childLength + 1;
     }
 
-    this.setState({
-      children: {
-        ...this.state.children,
-        [length]: {
-          id: rand,
-          pos: length,
-          module: section,
-          data: {
-            ...this.state[section],
-            id: rand
-          }
-        }
+    const newData = {
+      id: rand,
+      pos: length,
+      module: section,
+      data: {
+        ...this.state[section],
+        id: rand
       }
+    };
+
+    this.setState({
+      children: [...this.state.children, newData]
     });
   };
 
@@ -232,6 +252,7 @@ class App extends Component {
       .once("value")
       .then(snapshot => {
         const data = snapshot.val();
+
         this.setState({
           pageTitle: pageTitle,
           children: data
@@ -260,7 +281,6 @@ class App extends Component {
   };
 
   handleMenuChange = i => e => {
-    console.log("menu changed");
     const { name, value } = e.target;
     let menuItem = [...this.state.menuItem];
     menuItem[i] = { ...menuItem[i], [name]: value };
@@ -297,12 +317,19 @@ class App extends Component {
       });
   };
 
-  renderAdmin = () => {
+  handleChange = name => event => {
+    this.setState({
+      [name]: event.target.value
+    });
+  };
+
+  renderBlockEditor = () => {
     const { currentlyEditing, children } = this.state;
     if (children && currentlyEditing) {
       const index = children,
         fields = _.findIndex(index, { id: currentlyEditing }),
         fieldData = index[fields];
+
       return _.map(fieldData.data, (value, key) => {
         return (
           <Admin key={key}>
@@ -310,7 +337,13 @@ class App extends Component {
               className="textField"
               id="standard-name"
               label={key}
-              onChange={this.editSection(currentlyEditing, key, fields.module)}
+              onChange={this.editSection(
+                currentlyEditing,
+                fields,
+                key,
+                fieldData.module,
+                fieldData
+              )}
               margin="normal"
             />
           </Admin>
@@ -319,28 +352,27 @@ class App extends Component {
     }
   };
 
-  handleChange = name => event => {
-    this.setState({
-      [name]: event.target.value
-    });
-  };
+  editSection = (blockId, blockIndex, key, moduleType, newData) => e => {
+    const prevChildren = [...this.state.children],
+      childKey = key;
+    prevChildren[blockIndex].data[key] = e.target.value;
 
-  editSection = (blockId, key, moduleType) => e => {
-    const blockId = this.state.currentlyEditing,
-      fields = _.get(this.state.children, blockId);
+    // console.log(blockId);
+    // console.log(key);
+    // console.log(moduleType);
+    // console.log(newData);
+    // console.log(e.target.value);
+    // console.log(newData.data);
+    console.log(prevChildren);
 
-    this.setState({
-      children: {
-        ...this.state.children,
-        [blockId]: {
-          module: moduleType,
-          data: {
-            ...fields.data,
-            [key]: e.target.value
-          }
-        }
-      }
-    });
+    //
+    //
+    this.setState(
+      {
+        prevChildren
+      },
+      () => console.log(this.state.children)
+    );
   };
 
   renderMenu = (type, location) => {
@@ -416,7 +448,53 @@ class App extends Component {
     }
   }
 
+  renderNavEditor() {
+    const state = this.state;
+    if (this.state.openNav) {
+      return (
+        <ModuleContainer
+          style={{
+            opacity: state.openNav ? "1" : "0",
+            width: state.openNav ? "20%" : "0%",
+            padding: state.openNav ? "5%" : "0%"
+          }}
+        >
+          <NavEditor
+            handleMenuChange={this.handleMenuChange}
+            addClick={this.addClick}
+            menuItem={state.menuItem}
+            removeClick={this.removeClick}
+            updateMenu={this.updateMenu}
+          />
+        </ModuleContainer>
+      );
+    }
+  }
+
+  renderModules() {
+    const state = this.state;
+    if (state.modules) {
+      return (
+        <ModuleContainer
+          style={{
+            opacity: state.modules ? "1" : "0",
+            width: state.modules ? "20%" : "0%",
+            padding: state.modules ? "5%" : "0%"
+          }}
+        >
+          <i
+            onClick={() => this.setState({ modules: false })}
+            className="fal fa-times closer"
+          />
+          <Modules newSection={this.newSection} />
+        </ModuleContainer>
+      );
+    }
+  }
+
   render() {
+    const arr = Array.isArray(this.state.children);
+    console.log(arr);
     const state = this.state;
     return (
       <div className="App">
@@ -428,55 +506,22 @@ class App extends Component {
         />
         <Edit>
           <div className="edit-container">
-            <div className="slug-editor">
-              <p>localhost:3000/</p>
-              <TextField
-                className="textField"
-                id="standard-name"
-                placeholder=""
-                value={state.pageTitle}
-                onChange={this.handleChange("pageTitle")}
-                margin="normal"
-              />
-            </div>
+            <SlugEditor
+              newPage={this.newPage}
+              handleChange={this.handleChange}
+              pageTitle={state.pageTitle}
+            />
 
-            <div className="icon-bar">
-              <div
-                style={{ marginRight: "60px", display: "block" }}
-                className="breakpoints"
-              >
-                <i
-                  onClick={this.breakpointChange("desktop")}
-                  style={{ opacity: state.desktop ? "1" : ".6" }}
-                  className="fas fa-desktop-alt"
-                />
-                <i
-                  onClick={this.breakpointChange("tablet")}
-                  style={{ opacity: state.tablet ? "1" : ".6" }}
-                  className="fas fa-tablet-android-alt"
-                />
-                <i
-                  onClick={this.breakpointChange("mobile")}
-                  style={{ opacity: state.mobile ? "1" : ".6" }}
-                  className="far fa-mobile"
-                />
-              </div>
-              <i onClick={this.openNav()} className="far fa-bars" />
-              <i onClick={this.saveConfig()} className="far fa-save" />
-              <i
-                style={{
-                  opacity: state.modules ? "1" : "0.6"
-                }}
-                className="far fa-vector-square"
-                onClick={() =>
-                  this.setState({
-                    modules: !state.modules,
-                    edit: false,
-                    openNav: false
-                  })
-                }
-              />
-            </div>
+            <IconBar
+              breakpointChange={this.breakpointChange}
+              tablet={state.tablet}
+              mobile={state.mobilel}
+              desktop={state.desktop}
+              modules={state.modules}
+              openModule={this.openModule}
+              openNav={this.openNav}
+              saveConfig={this.saveConfig}
+            />
           </div>
         </Edit>
 
@@ -494,37 +539,11 @@ class App extends Component {
                 state.modules || state.edit || state.openNav ? "5%" : "0%"
             }}
           />
-          <ModuleContainer
-            style={{
-              opacity: state.openNav ? "1" : "0",
-              width: state.openNav ? "20%" : "0%",
-              padding: state.openNav ? "5%" : "0%"
-            }}
-          >
-            <NavEditor
-              handleMenuChange={this.handleMenuChange}
-              addClick={this.addClick}
-              menuItem={state.menuItem}
-              removeClick={this.removeClick}
-              updateMenu={this.updateMenu}
-            />
-          </ModuleContainer>
-          <ModuleContainer
-            style={{
-              opacity: state.modules ? "1" : "0",
-              width: state.modules ? "20%" : "0%",
-              padding: state.modules ? "5%" : "0%"
-            }}
-          >
-            <i
-              onClick={() => this.setState({ modules: false })}
-              className="fal fa-times closer"
-            />
-            <Modules newSection={this.newSection} />
-          </ModuleContainer>
+          {this.renderNavEditor()}
+          {this.renderModules()}
           <Editor
             style={{
-              background: "linear-gradient(to bottom, #00121f 0%,#01090e 100%)",
+              background: "#F4F5F7",
               height: "100vh",
               position: "fixed",
               opacity: state.edit ? "1" : "0",
@@ -538,7 +557,7 @@ class App extends Component {
             />
             <h2>Edit Block</h2>
 
-            {this.renderAdmin(state.hero)}
+            {this.renderBlockEditor(state.hero)}
             <Button
               style={{
                 background: "#00EADB",

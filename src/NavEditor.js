@@ -2,6 +2,40 @@ import React, { Component } from "react";
 
 import styled from "styled-components";
 
+const Input = styled.input`
+    cursor: pointer;
+    margin: 20px 0;
+    border: 1px solid gray;
+    padding: 10px 20px;
+    list-style-type: none;
+    color: gray;
+    background: transparent;
+    font-size: 20px;
+  `,
+  Container = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  `,
+  Save = styled.div`
+    cursor: pointer;
+    display: flex;
+    margin-left: 20px;
+    text-transform: uppercase;
+    color: gray;
+    font-weight: bold;
+    letter-spacing: 2px;
+    align-items: center;
+    opacity: 0.6;
+    &:hover {
+      opacity: 1;
+    }
+    i {
+      margin-left: 10px;
+      color: #00eadb;
+    }
+  `;
+
 export default class NavEditor extends Component {
   createUI() {
     if (this.props.menuItem) {
@@ -35,39 +69,6 @@ export default class NavEditor extends Component {
   }
 
   render() {
-    const Input = styled.input`
-        cursor: pointer;
-        margin: 20px 0;
-        border: 1px solid gray;
-        padding: 10px 20px;
-        list-style-type: none;
-        color: gray;
-        background: transparent;
-        font-size: 20px;
-      `,
-      Container = styled.div`
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-      `,
-      Save = styled.div`
-        cursor: pointer;
-        display: flex;
-        margin-left: 20px;
-        text-transform: uppercase;
-        color: gray;
-        font-weight: bold;
-        letter-spacing: 2px;
-        align-items: center;
-        opacity: 0.6;
-        &:hover {
-          opacity: 1;
-        }
-        i {
-          margin-left: 10px;
-          color: #00eadb;
-        }
-      `;
     return (
       <Container>
         {this.createUI()}
