@@ -1,12 +1,14 @@
 import React, { Component } from "react";
-
+import logo from "./logo.svg";
 import _ from "lodash";
 
 import styled from "styled-components";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Modules from "./Modules";
+import NavEditor from "./NavEditor";
 import Sections from "./Sections";
+import { NavBar } from "ggmm-react-lib";
 import { fire } from "./firebase/firebase";
 import {
   TwoColDefault,
@@ -77,13 +79,17 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mobile: true,
-      desktop: false,
+      mobile: false,
+      desktop: true,
       tablet: false,
+      openNav: true,
+      header: [],
+      menuItem: [{ name: "", link: "" }],
+      navType: "left",
       currentlyEditing: "",
       admin: true,
       edit: false,
-      modules: true,
+      modules: false,
       hero: [],
       dragKey: 0,
       pageTitle: "Default",
@@ -108,6 +114,14 @@ class App extends Component {
         },
         () => this.props.history.push("/" + this.state.pageTitle)
       );
+  };
+
+  openNav = name => event => {
+    this.setState({
+      openNav: !this.state.openNav,
+      modules: false,
+      edit: false
+    });
   };
 
   breakpointChange = type => e => {
@@ -165,6 +179,7 @@ class App extends Component {
     this.setState({
       edit: true,
       modules: false,
+      openNav: false,
       currentlyEditing: name
     });
   };
@@ -222,7 +237,54 @@ class App extends Component {
           children: data
         });
       });
+
+    fire
+      .database()
+      .ref("menus/header")
+      .once("value")
+      .then(snapshot => {
+        const data = snapshot.val();
+        this.setState({
+          menuItem: data
+        });
+      });
   }
+
+  //Menu Stuff
+
+  addClick = () => e => {
+    console.log("menu clicked");
+    this.setState(prevState => ({
+      menuItem: [...prevState.menuItem, { name: "", link: "" }]
+    }));
+  };
+
+  handleMenuChange = i => e => {
+    console.log("menu changed");
+    const { name, value } = e.target;
+    let menuItem = [...this.state.menuItem];
+    menuItem[i] = { ...menuItem[i], [name]: value };
+    this.setState({ menuItem });
+  };
+
+  removeClick = i => e => {
+    console.log("menu removed");
+    let menuItem = [...this.state.menuItem];
+    menuItem.splice(i, 1);
+    this.setState({ menuItem });
+  };
+
+  updateMenu = () => e => {
+    console.log("menu updated");
+    fire
+      .database()
+      .ref("menus")
+      .update({
+        header: this.state.menuItem
+      });
+  };
+
+  //end menu stuff
 
   saveModule = () => event => {
     const { location } = this.props;
@@ -236,11 +298,11 @@ class App extends Component {
   };
 
   renderAdmin = () => {
-    const blockId = this.state.currentlyEditing,
-      index = this.state.children,
-      fields = _.findIndex(index, { id: blockId }),
-      fieldData = index[fields];
-    if (fieldData) {
+    const { currentlyEditing, children } = this.state;
+    if (children && currentlyEditing) {
+      const index = children,
+        fields = _.findIndex(index, { id: currentlyEditing }),
+        fieldData = index[fields];
       return _.map(fieldData.data, (value, key) => {
         return (
           <Admin key={key}>
@@ -248,7 +310,7 @@ class App extends Component {
               className="textField"
               id="standard-name"
               label={key}
-              onChange={this.editSection(blockId, key, fields.module)}
+              onChange={this.editSection(currentlyEditing, key, fields.module)}
               margin="normal"
             />
           </Admin>
@@ -281,51 +343,81 @@ class App extends Component {
     });
   };
 
+  renderMenu = (type, location) => {
+    if (type === "left") {
+      return (
+        <NavBar
+          backgroundColor="whitesmoke"
+          type="left"
+          logo={logo}
+          navColor="gray"
+          logoWidth="50px"
+          iconColor="gray"
+          padding="10px"
+          nav={this.state.menuItem}
+          social={this.state.social}
+        />
+      );
+    }
+  };
+
   renderSections() {
     return (
-      <Sections
-        blockUp={this.blockUp}
-        blockDown={this.blockDown}
-        deleteBlock={this.deleteBlock}
-        enableIcon={this.enableIcon}
-        children={this.state.children}
-      />
+      <div>
+        {this.renderMenu(this.state.navType, "header")}
+        <Sections
+          blockUp={this.blockUp}
+          blockDown={this.blockDown}
+          deleteBlock={this.deleteBlock}
+          enableIcon={this.enableIcon}
+          children={this.state.children}
+        />
+      </div>
     );
   }
 
   renderWrapper() {
+    const state = this.state;
     if (this.state.desktop) {
       return (
         <div
           className="wrapper"
           style={{
-            width: this.state.edit || this.state.modules ? "70%" : "100%"
+            width: state.edit || state.modules || state.openNav ? "70%" : "100%"
           }}
         >
           {this.renderSections()}
         </div>
       );
-    } else if (this.state.mobile) {
+    } else if (state.mobile) {
       return (
         <div
           className="wrapper"
           style={{
-            width: this.state.edit || this.state.modules ? "355px" : "100%"
+            width:
+              state.edit || state.modules || state.openNav ? "355px" : "100%"
           }}
         >
-          <div className="phone">
-            <div className="top-nav">
-              <div className="sound" />
-              <div className="camera" />
-            </div>
-            {this.renderSections()}
-          </div>
+          <div className="phone">{this.renderSections()}</div>
+        </div>
+      );
+    } else if (state.tablet) {
+      return (
+        <div
+          className="wrapper"
+          style={{
+            width:
+              state.edit || state.modules || state.openNav ? "355px" : "100%"
+          }}
+        >
+          <div className="tablet">{this.renderSections()}</div>
         </div>
       );
     }
   }
 
   render() {
+    const state = this.state;
     return (
       <div className="App">
         <link
@@ -336,13 +428,17 @@ class App extends Component {
         />
         <Edit>
           <div className="edit-container">
-            <TextField
-              className="textField"
-              id="standard-name"
-              placeholder={this.state.pageTitle}
-              onChange={this.handleChange("pageTitle")}
-              margin="normal"
-            />
+            <div className="slug-editor">
+              <p>localhost:3000/</p>
+              <TextField
+                className="textField"
+                id="standard-name"
+                placeholder=""
+                value={state.pageTitle}
+                onChange={this.handleChange("pageTitle")}
+                margin="normal"
+              />
+            </div>
 
             <div className="icon-bar">
               <div
@@ -351,30 +447,32 @@ class App extends Component {
               >
                 <i
                   onClick={this.breakpointChange("desktop")}
-                  style={{ opacity: this.state.desktop ? "1" : ".6" }}
+                  style={{ opacity: state.desktop ? "1" : ".6" }}
                   className="fas fa-desktop-alt"
                 />
                 <i
                   onClick={this.breakpointChange("tablet")}
-                  style={{ opacity: this.state.tablet ? "1" : ".6" }}
+                  style={{ opacity: state.tablet ? "1" : ".6" }}
                   className="fas fa-tablet-android-alt"
                 />
                 <i
                   onClick={this.breakpointChange("mobile")}
-                  style={{ opacity: this.state.mobile ? "1" : ".6" }}
+                  style={{ opacity: state.mobile ? "1" : ".6" }}
                   className="far fa-mobile"
                 />
               </div>
+              <i onClick={this.openNav()} className="far fa-bars" />
               <i onClick={this.saveConfig()} className="far fa-save" />
               <i
                 style={{
-                  opacity: this.state.modules ? "1" : "0.6"
+                  opacity: state.modules ? "1" : "0.6"
                 }}
                 className="far fa-vector-square"
                 onClick={() =>
                   this.setState({
-                    modules: !this.state.modules,
-                    edit: false
+                    modules: !state.modules,
+                    edit: false,
+                    openNav: false
                   })
                 }
               />
@@ -383,20 +481,39 @@ class App extends Component {
         </Edit>
 
         <Container
-          style={{ background: this.state.mobile ? "#010a10" : "white" }}
+          style={{
+            background: state.mobile || state.tablet ? "#010a10" : "white"
+          }}
         >
           <Fill
             style={{
-              opacity: this.state.modules || this.state.edit ? "1" : "0",
-              width: this.state.modules || this.state.edit ? "20%" : "0%",
-              padding: this.state.modules || this.state.edit ? "5%" : "0%"
+              opacity: state.modules || state.edit || state.openNav ? "1" : "0",
+              width:
+                state.modules || state.edit || state.openNav ? "20%" : "0%",
+              padding:
+                state.modules || state.edit || state.openNav ? "5%" : "0%"
             }}
           />
           <ModuleContainer
             style={{
-              opacity: this.state.modules ? "1" : "0",
-              width: this.state.modules ? "20%" : "0%",
-              padding: this.state.modules ? "5%" : "0%"
+              opacity: state.openNav ? "1" : "0",
+              width: state.openNav ? "20%" : "0%",
+              padding: state.openNav ? "5%" : "0%"
+            }}
+          >
+            <NavEditor
+              handleMenuChange={this.handleMenuChange}
+              addClick={this.addClick}
+              menuItem={state.menuItem}
+              removeClick={this.removeClick}
+              updateMenu={this.updateMenu}
+            />
+          </ModuleContainer>
+          <ModuleContainer
+            style={{
+              opacity: state.modules ? "1" : "0",
+              width: state.modules ? "20%" : "0%",
+              padding: state.modules ? "5%" : "0%"
             }}
           >
             <i
@@ -410,9 +527,9 @@ class App extends Component {
               background: "linear-gradient(to bottom, #00121f 0%,#01090e 100%)",
               height: "100vh",
               position: "fixed",
-              opacity: this.state.edit ? "1" : "0",
-              width: this.state.edit ? "20%" : "0%",
-              padding: this.state.edit ? "5%" : "0%"
+              opacity: state.edit ? "1" : "0",
+              width: state.edit ? "20%" : "0%",
+              padding: state.edit ? "5%" : "0%"
             }}
           >
             <i
@@ -421,7 +538,7 @@ class App extends Component {
             />
             <h2>Edit Block</h2>
 
-            {this.renderAdmin(this.state.hero)}
+            {this.renderAdmin(state.hero)}
             <Button
               style={{
                 background: "#00EADB",

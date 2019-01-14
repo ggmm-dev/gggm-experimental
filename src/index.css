@@ -8,12 +8,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.phone {
+.phone,
+.tablet {
   background: white;
   border: 10px solid #051626;
   border-radius: 50px;
-  height: 812px;
-  width: 375px;
+  overflow: hidden;
+  position: relative;
   overflow: scroll;
   position: relative;
   left: 50%;
@@ -21,7 +22,18 @@ body {
   -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
 }
 
-.phone::-webkit-scrollbar {
+.tablet {
+  height: 682.66px;
+  width: 512px;
+}
+
+.phone {
+  height: 812px;
+  width: 375px;
+}
+
+.phone::-webkit-scrollbar,
+.tablet::-webkit-scrollbar {
   width: 0px; /* remove scrollbar space */
   background: transparent; /* optional: just make scrollbar invisible */
 }
@@ -39,32 +51,23 @@ body {
   border-radius: 25px;
 }
 
-.sound,
-.camera {
-  background: #01294a;
-  height: 10px;
-  position: absolute;
-  z-index: 2;
-  top: 29px;
-}
-
-.sound {
-  width: 70px;
-  left: 50px;
-  border-radius: 25px;
-}
-
-.camera {
-  left: 130px;
-  border-radius: 50%;
-  width: 10px;
-}
-
 .closer {
   color: white;
   position: absolute;
   top: 30px;
   right: 30px;
+}
+
+.slug-editor {
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+.slug-editor p {
+  margin: 0;
+  color: gray;
+  padding-right: 10px;
 }
 
 i {
@@ -88,11 +91,8 @@ code {
   transition: 0.5s;
 }
 
-.textField label {
-  color: #6d8691 !important;
-}
 .textField input {
-  color: #00eadb;
+  color: white;
 }
 
 .textField {
