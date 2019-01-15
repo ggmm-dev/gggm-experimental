@@ -1,16 +1,7 @@
 import React, { Component } from "react";
 
-import styled from "styled-components";
 import TextField from "@material-ui/core/TextField";
 
-const NewSlug = styled.div`
-  display: flex;
-  align-items: center;
-  color: gray;
-  span {
-    color: #00eadb;
-  }
-`;
 export default class SlugEditor extends Component {
   render() {
     const props = this.props;

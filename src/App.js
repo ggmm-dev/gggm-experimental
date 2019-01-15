@@ -96,7 +96,6 @@ class App extends Component {
       dragKey: 0,
       pageTitle: "Default",
       children: [],
-      children2: [],
       FullSlider: FullSliderDefault,
       Mosaic: MosaicDefault,
       Hero: HeroDefault,
@@ -163,7 +162,6 @@ class App extends Component {
   };
 
   newPage = () => e => {
-    const { location } = this.props;
     this.props.history.push("/");
 
     this.setState({
@@ -173,10 +171,11 @@ class App extends Component {
   };
 
   newSection = section => event => {
-    const rand = new Date().valueOf();
+    const rand = new Date().valueOf(),
+      { children } = this.state;
     let length = 0;
-    if (this.state.children) {
-      const childLength = Object.keys(this.state.children).length - 1;
+    if (children) {
+      const childLength = Object.keys(children).length - 1;
       length = childLength + 1;
     }
 
@@ -210,7 +209,10 @@ class App extends Component {
     data.splice(index, 1);
 
     this.setState({
-      children: data
+      children: data,
+      currentlyEditing: "",
+      edit: false,
+      modules: true
     });
   };
 
@@ -253,10 +255,12 @@ class App extends Component {
       .then(snapshot => {
         const data = snapshot.val();
 
-        this.setState({
-          pageTitle: pageTitle,
-          children: data
-        });
+        if (data) {
+          this.setState({
+            pageTitle: pageTitle,
+            children: data
+          });
+        }
       });
 
     fire
@@ -265,6 +269,7 @@ class App extends Component {
       .once("value")
       .then(snapshot => {
         const data = snapshot.val();
+
         this.setState({
           menuItem: data
         });
@@ -274,7 +279,6 @@ class App extends Component {
   //Menu Stuff
 
   addClick = () => e => {
-    console.log("menu clicked");
     this.setState(prevState => ({
       menuItem: [...prevState.menuItem, { name: "", link: "" }]
     }));
@@ -288,14 +292,12 @@ class App extends Component {
   };
 
   removeClick = i => e => {
-    console.log("menu removed");
     let menuItem = [...this.state.menuItem];
     menuItem.splice(i, 1);
     this.setState({ menuItem });
   };
 
   updateMenu = () => e => {
-    console.log("menu updated");
     fire
       .database()
       .ref("menus")
@@ -353,26 +355,12 @@ class App extends Component {
   };
 
   editSection = (blockId, blockIndex, key, moduleType, newData) => e => {
-    const prevChildren = [...this.state.children],
-      childKey = key;
+    const prevChildren = [...this.state.children];
     prevChildren[blockIndex].data[key] = e.target.value;
 
-    // console.log(blockId);
-    // console.log(key);
-    // console.log(moduleType);
-    // console.log(newData);
-    // console.log(e.target.value);
-    // console.log(newData.data);
-    console.log(prevChildren);
-
-    //
-    //
-    this.setState(
-      {
-        prevChildren
-      },
-      () => console.log(this.state.children)
-    );
+    this.setState({
+      prevChildren
+    });
   };
 
   renderMenu = (type, location) => {
@@ -493,8 +481,6 @@ class App extends Component {
   }
 
   render() {
-    const arr = Array.isArray(this.state.children);
-    console.log(arr);
     const state = this.state;
     return (
       <div className="App">
