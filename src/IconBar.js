@@ -9,6 +9,10 @@ export default class IconBar extends Component {
           style={{ marginRight: "60px", display: "block" }}
           className="breakpoints"
         >
+          {/* <a href="https://heroku.com/deploy">
+            <i class="fas fa-power-off" />
+          </a> */}
+
           <i
             onClick={props.breakpointChange("desktop")}
             style={{ opacity: props.desktop ? "1" : ".6" }}

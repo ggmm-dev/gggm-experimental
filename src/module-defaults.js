@@ -47,15 +47,43 @@ export const TwoColDefault = {
     overlay: true
   },
   HeroDefault = {
-    type: "image", //video or image
-    headline: "Headline",
-    padding: "0px",
-    subheadline: "Subheadline",
-    overlay: true, //disables darkened overlay
-    buttonUrl: "/",
-    height: "50", // represents percentage height
-    buttonTitle: "Button",
-    imageUrl: "https://source.unsplash.com/random" // src of image for background if type is image
+    type: {
+      value: "image",
+      options: ["video", "image"],
+      type: "select"
+    },
+    headline: {
+      value: "Headline",
+      type: "textarea"
+    },
+    padding: {
+      type: "slider",
+      value: "0px"
+    },
+    subheadline: {
+      type: "textarea",
+      value: "Subheadline"
+    },
+    overlay: {
+      type: "checkbox",
+      value: true
+    },
+    buttonUrl: {
+      value: "/",
+      type: "text"
+    },
+    buttonTitle: {
+      value: "Button",
+      type: "text"
+    },
+    height: {
+      type: "slider",
+      value: 70
+    },
+    imageUrl: {
+      value: "https://source.unsplash.com/random",
+      type: "image_picker"
+    }
   },
   ThreeColDefault = {
     fullWidth: false,

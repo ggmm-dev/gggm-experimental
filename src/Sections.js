@@ -47,19 +47,19 @@ class Sections extends Component {
               id={module.id}
               key={module.id}
               enableIcon={this.props.enableIcon}
-              padding={module.padding}
+              padding={module.padding.value}
               deleteBlock={this.props.deleteBlock}
               blockUp={this.props.blockUp}
               blockDown={this.props.blockDown}
               editor={true}
-              type={module.type} //video or image
-              headline={module.headline}
-              subheadline={module.subheadline}
-              overlay={module.overlay} //disables darkened overlay
-              buttonUrl={module.buttonUrl}
-              height={module.height} // represents percentage height
-              buttonTitle={module.buttonTitle}
-              imageUrl={module.imageUrl} // src of image for background if type is image
+              type={module.type.value} //video or image
+              headline={module.headline.value}
+              subheadline={module.subheadline.value}
+              overlay={module.overlay.value} //disables darkened overlay
+              buttonUrl={module.buttonUrl.value}
+              height={module.height.value} // represents percentage height
+              buttonTitle={module.buttonTitle.value}
+              imageUrl={module.imageUrl.value} // src of image for background if type is image
             />
           );
         } else if (child.module === "TextHeadline") {

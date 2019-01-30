@@ -4,6 +4,7 @@ import _ from "lodash";
 
 import styled from "styled-components";
 import TextField from "@material-ui/core/TextField";
+import Slider from "@material-ui/lab/Slider";
 import Button from "@material-ui/core/Button";
 import Modules from "./Modules";
 import NavEditor from "./NavEditor";
@@ -35,8 +36,11 @@ const Admin = styled.div`
     width: 100%;
     top: 0;
     z-index: 10;
-    height: 35px;
+    padding: 10px 0;
     .edit-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       width: 98%;
       margin: 0 auto;
     }
@@ -46,9 +50,6 @@ const Admin = styled.div`
 
     .icon-bar {
       display: flex;
-      position: absolute;
-      right: 10px;
-      top: 10px;
       i {
         margin-right: 10px;
         &:last-child {
@@ -60,7 +61,8 @@ const Admin = styled.div`
   Container = styled.div`
     display: flex;
     flex-wrap: wrap;
-    margin-top: 35px;
+
+    margin-top: 53px;
   `,
   Editor = styled.div`
     width: 50%;
@@ -91,7 +93,7 @@ class App extends Component {
       admin: true,
       openNav: false,
       edit: false,
-      modules: false,
+      modules: true,
       hero: [],
       dragKey: 0,
       pageTitle: "Default",
@@ -248,6 +250,8 @@ class App extends Component {
     const { location } = this.props,
       pageTitle = location.pathname.replace("/", "");
 
+    this.refs.container.style.opacity = 1;
+
     fire
       .database()
       .ref("pages" + location.pathname + "/children")
@@ -333,30 +337,80 @@ class App extends Component {
         fieldData = index[fields];
 
       return _.map(fieldData.data, (value, key) => {
-        return (
-          <Admin key={key}>
-            <TextField
-              className="textField"
-              id="standard-name"
-              label={key}
-              onChange={this.editSection(
-                currentlyEditing,
-                fields,
-                key,
-                fieldData.module,
-                fieldData
-              )}
-              margin="normal"
-            />
-          </Admin>
-        );
+        if (value.type === "text") {
+          return (
+            <Admin key={key}>
+              <TextField
+                className="textField"
+                id="standard-name"
+                label={key}
+                onChange={this.editSection(
+                  currentlyEditing,
+                  fields,
+                  key,
+                  fieldData.module,
+                  fieldData
+                )}
+                margin="normal"
+              />
+            </Admin>
+          );
+        } else if (value.type === "textarea") {
+          return (
+            <Admin key={key}>
+              <TextField
+                id="standard-multiline-flexible"
+                multiline
+                rowsMax="4"
+                label={key}
+                onChange={this.editSection(
+                  currentlyEditing,
+                  fields,
+                  key,
+                  fieldData.module,
+                  fieldData
+                )}
+                margin="normal"
+              />
+            </Admin>
+          );
+        } else if (value.type === "slider") {
+          return (
+            <Admin key={key}>
+              <Slider
+                value={value.value}
+                aria-labelledby="label"
+                min={10}
+                max={100}
+                step={5}
+                onChange={this.editSlider(
+                  currentlyEditing,
+                  fields,
+                  key,
+                  fieldData.module,
+                  fieldData
+                )}
+              />
+            </Admin>
+          );
+        }
       });
     }
   };
 
+  editSlider = (blockId, blockIndex, key, moduleType, newData) => (e, val) => {
+    const prevChildren = [...this.state.children];
+    prevChildren[blockIndex].data[key].value = val;
+    console.log(val);
+
+    this.setState({
+      prevChildren
+    });
+  };
+
   editSection = (blockId, blockIndex, key, moduleType, newData) => e => {
     const prevChildren = [...this.state.children];
-    prevChildren[blockIndex].data[key] = e.target.value;
+    prevChildren[blockIndex].data[key].value = e.target.value;
 
     this.setState({
       prevChildren
@@ -490,6 +544,7 @@ class App extends Component {
           integrity="sha384-87DrmpqHRiY8hPLIr7ByqhPIywuSsjuQAfMXAE0sMUpY3BM7nXjf+mLIUSvhDArs"
           crossOrigin="anonymous"
         />
+
         <Edit>
           <div className="edit-container">
             <SlugEditor
@@ -499,6 +554,7 @@ class App extends Component {
             />
 
             <IconBar
+              ref="a"
               breakpointChange={this.breakpointChange}
               tablet={state.tablet}
               mobile={state.mobilel}
@@ -512,7 +568,10 @@ class App extends Component {
         </Edit>
 
         <Container
+          ref="container"
           style={{
+            opacity: "0",
+            transition: "900ms opacity ease-in-out",
             background: state.mobile || state.tablet ? "#010a10" : "white"
           }}
         >
