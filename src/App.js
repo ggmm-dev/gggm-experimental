@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import _ from "lodash";
 
+import FileUploader from "react-firebase-file-uploader";
+import CustomUploadButton from "react-firebase-file-uploader/lib/CustomUploadButton";
 import styled from "styled-components";
 import TextField from "@material-ui/core/TextField";
 import Slider from "@material-ui/lab/Slider";
@@ -94,6 +96,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isUploading: false,
+      progress: 0,
       mobile: false,
       desktop: true,
       tablet: false,
@@ -125,6 +129,25 @@ class App extends Component {
     this.setState({
       edit: false
     });
+  };
+
+  handleUploadSuccess = (ce, key) => filename => {
+    const prevChildren = [...this.state.children],
+      d = this.state.children,
+      index = _.findIndex(d, { id: ce });
+
+    this.setState({ avatar: filename, progress: 100, isUploading: false });
+    fire
+      .storage()
+      .ref("images")
+      .child(filename)
+      .getDownloadURL()
+      .then(url => {
+        prevChildren[index].data.imageUrl.value = url;
+        this.setState({
+          prevChildren
+        });
+      });
   };
 
   saveConfig = config => event => {
@@ -184,7 +207,6 @@ class App extends Component {
 
   newPage = () => e => {
     this.props.history.push("/");
-
     this.setState({
       children: [],
       pageTitle: ""
@@ -365,6 +387,21 @@ class App extends Component {
 
       return _.map(fieldData.data, (value, key) => {
         if (this.state.contentMode && value.mode === "content") {
+          if (value.type === "image_picker") {
+            return (
+              <CustomUploadButton
+                className="image-btn"
+                accept="image/*"
+                storageRef={fire.storage().ref("images")}
+                onUploadStart={this.handleUploadStart}
+                onUploadError={this.handleUploadError}
+                onUploadSuccess={this.handleUploadSuccess(currentlyEditing)}
+                onProgress={this.handleProgress}
+              >
+                Add Image
+              </CustomUploadButton>
+            );
+          }
           if (value.type === "text") {
             return (
               <Admin key={key}>
@@ -535,7 +572,6 @@ class App extends Component {
   editToggle = (blockId, blockIndex, key, moduleType, newData) => (e, val) => {
     const prevChildren = [...this.state.children];
     prevChildren[blockIndex].data[key].value = val;
-    console.log(val);
 
     this.setState({
       prevChildren
