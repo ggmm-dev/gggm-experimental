@@ -50,40 +50,68 @@ export const TwoColDefault = {
     type: {
       value: "image",
       options: ["video", "image"],
-      type: "select"
+      type: "select",
+      mode: "style",
+      label: "Background Type"
     },
     headline: {
       value: "Headline",
-      type: "textarea"
+      type: "textarea",
+      mode: "content",
+      label: "Headline"
     },
     padding: {
       type: "slider",
-      value: "0px"
+      value: 0,
+      mode: "style",
+      label: "Container Padding"
     },
     subheadline: {
       type: "textarea",
-      value: "Subheadline"
+      value: "Subheadline",
+      mode: "content",
+      label: "Subheadline"
     },
     overlay: {
-      type: "checkbox",
-      value: true
+      type: "switch",
+      value: true,
+      mode: "style",
+      label: "Background Overlay"
     },
     buttonUrl: {
       value: "/",
-      type: "text"
+      type: "text",
+      mode: "content",
+      label: "Button Url"
     },
     buttonTitle: {
       value: "Button",
-      type: "text"
+      type: "text",
+      mode: "content",
+      label: "Button Title"
     },
     height: {
       type: "slider",
-      value: 70
+      value: 70,
+      mode: "style",
+      label: "Container Height"
     },
     imageUrl: {
       value: "https://source.unsplash.com/random",
-      type: "image_picker"
+      type: "image_picker",
+      mode: "content",
+      label: "Background Image"
     }
+  },
+  GridDefault = {
+    data: grid,
+    columns: "2",
+    padding: "0px",
+    gridGap: "0px",
+    height: "400px",
+    overlay: true,
+    fullWidth: true,
+    text: true
   },
   ThreeColDefault = {
     fullWidth: false,
@@ -104,16 +132,6 @@ export const TwoColDefault = {
     subheadline:
       "Bacon ipsum dolor amet beef ribs drumstick swine cow brisket, flank pancetta spare ribs strip steak salami turkey ball tip ground round ham turducken.",
     headline: "Headline"
-  },
-  GridDefault = {
-    data: grid,
-    columns: "2",
-    padding: "0px",
-    gridGap: "0px",
-    height: "400px",
-    overlay: true,
-    fullWidth: true,
-    text: true
   },
   FullSliderDefault = {
     data: grid,

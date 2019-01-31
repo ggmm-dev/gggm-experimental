@@ -9,6 +9,7 @@
     "firebase": "^5.7.2",
     "ggmm-react-lib": "^1.31.8",
     "lodash": "^4.17.11",
+    "material-ui-slider-label": "git+https://github.com/tariqwest/material-ui-slider-label.git",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-router-dom": "^4.3.1",

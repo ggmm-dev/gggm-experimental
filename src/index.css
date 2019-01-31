@@ -70,6 +70,11 @@ body {
   padding-right: 10px;
 }
 
+.form-select-control {
+  width: 100%;
+  margin: 20px 0 !important;
+}
+
 i {
   cursor: pointer;
 }
@@ -89,10 +94,6 @@ code {
 
 * {
   transition: 0.5s;
-}
-
-.textField input {
-  color: white;
 }
 
 .textField {

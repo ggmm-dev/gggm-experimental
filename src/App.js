@@ -5,10 +5,18 @@ import _ from "lodash";
 import styled from "styled-components";
 import TextField from "@material-ui/core/TextField";
 import Slider from "@material-ui/lab/Slider";
+import MenuItem from "@material-ui/core/MenuItem";
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import Switch from "@material-ui/core/Switch";
 import Button from "@material-ui/core/Button";
 import Modules from "./Modules";
+import Typography from "@material-ui/core/Typography";
 import NavEditor from "./NavEditor";
 import SlugEditor from "./SlugEditor";
+import BlockEditor from "./BlockEditor";
 import IconBar from "./IconBar";
 import Sections from "./Sections";
 import { NavBar } from "ggmm-react-lib";
@@ -29,6 +37,9 @@ const Admin = styled.div`
     display: flex;
     flex-wrap: wrap;
     width: 100%;
+    .module-slider {
+      margin: 20px 0;
+    }
   `,
   Edit = styled.div`
     position: fixed;
@@ -86,14 +97,16 @@ class App extends Component {
       mobile: false,
       desktop: true,
       tablet: false,
+      contentMode: true,
+      styleMode: false,
       header: [],
       menuItem: [{ name: "", link: "" }],
       navType: "left",
       currentlyEditing: "",
       admin: true,
       openNav: false,
-      edit: false,
-      modules: true,
+      edit: true,
+      modules: false,
       hero: [],
       dragKey: 0,
       pageTitle: "Default",
@@ -107,6 +120,12 @@ class App extends Component {
       TextHeadline: TextHeadlineDefault
     };
   }
+
+  closeEditor = () => e => {
+    this.setState({
+      edit: false
+    });
+  };
 
   saveConfig = config => event => {
     fire
@@ -329,6 +348,14 @@ class App extends Component {
     });
   };
 
+  selectMode = mode => e => {
+    if (mode === "content") {
+      this.setState({ contentMode: true, styleMode: false });
+    } else if (mode === "style") {
+      this.setState({ contentMode: false, styleMode: true });
+    }
+  };
+
   renderBlockEditor = () => {
     const { currentlyEditing, children } = this.state;
     if (children && currentlyEditing) {
@@ -337,68 +364,175 @@ class App extends Component {
         fieldData = index[fields];
 
       return _.map(fieldData.data, (value, key) => {
-        if (value.type === "text") {
-          return (
-            <Admin key={key}>
-              <TextField
-                className="textField"
-                id="standard-name"
-                label={key}
-                onChange={this.editSection(
-                  currentlyEditing,
-                  fields,
-                  key,
-                  fieldData.module,
-                  fieldData
-                )}
-                margin="normal"
-              />
-            </Admin>
-          );
-        } else if (value.type === "textarea") {
-          return (
-            <Admin key={key}>
-              <TextField
-                id="standard-multiline-flexible"
-                multiline
-                rowsMax="4"
-                label={key}
-                onChange={this.editSection(
-                  currentlyEditing,
-                  fields,
-                  key,
-                  fieldData.module,
-                  fieldData
-                )}
-                margin="normal"
-              />
-            </Admin>
-          );
-        } else if (value.type === "slider") {
-          return (
-            <Admin key={key}>
-              <Slider
-                value={value.value}
-                aria-labelledby="label"
-                min={10}
-                max={100}
-                step={5}
-                onChange={this.editSlider(
-                  currentlyEditing,
-                  fields,
-                  key,
-                  fieldData.module,
-                  fieldData
-                )}
-              />
-            </Admin>
-          );
+        if (this.state.contentMode && value.mode === "content") {
+          if (value.type === "text") {
+            return (
+              <Admin key={key}>
+                <TextField
+                  className="textField"
+                  value={value.value}
+                  id="standard-name"
+                  label={value.label}
+                  onChange={this.editSection(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                  margin="normal"
+                />
+              </Admin>
+            );
+          } else if (value.type === "textarea") {
+            return (
+              <Admin key={key}>
+                <TextField
+                  value={value.value}
+                  id="standard-multiline-flexible"
+                  multiline
+                  rowsMax="4"
+                  label={value.label}
+                  onChange={this.editSection(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                  margin="normal"
+                />
+              </Admin>
+            );
+          } else if (value.type === "slider") {
+            return (
+              <Admin key={key}>
+                <Slider
+                  className="module-slider"
+                  value={value.value}
+                  aria-labelledby="label"
+                  min={10}
+                  max={100}
+                  step={2}
+                  onChange={this.editToggle(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                />
+              </Admin>
+            );
+          }
+        } else if (this.state.styleMode && value.mode === "style") {
+          if (value.type === "text") {
+            return (
+              <Admin key={key}>
+                <TextField
+                  value={value.value}
+                  className="textField"
+                  id="standard-name"
+                  label={value.label}
+                  onChange={this.editSection(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                  margin="normal"
+                />
+              </Admin>
+            );
+          } else if (value.type === "select") {
+            return (
+              <Admin key={key}>
+                <FormControl className="form-select-control">
+                  <InputLabel htmlFor={value.label}>{value.label}</InputLabel>
+                  <Select
+                    value={value.value}
+                    onChange={this.editSection(
+                      currentlyEditing,
+                      fields,
+                      key,
+                      fieldData.module,
+                      fieldData
+                    )}
+                  >
+                    {_.map(value.options, options => {
+                      return <MenuItem value={options}>{options}</MenuItem>;
+                    })}
+                  </Select>
+                </FormControl>
+              </Admin>
+            );
+          } else if (value.type === "switch") {
+            return (
+              <Admin key={key}>
+                <Typography id="label">{value.label}</Typography>
+                <Switch
+                  checked={value.value}
+                  onChange={this.editToggle(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                />
+              </Admin>
+            );
+          } else if (value.type === "textarea") {
+            return (
+              <Admin key={key}>
+                <TextField
+                  value={value.value}
+                  id="standard-multiline-flexible"
+                  multiline
+                  rowsMax="4"
+                  label={value.label}
+                  onChange={this.editSection(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                  margin="normal"
+                />
+              </Admin>
+            );
+          } else if (value.type === "slider") {
+            return (
+              <Admin key={key}>
+                <Typography id="label">
+                  {value.label} ({value.value}%)
+                </Typography>
+                <Slider
+                  className="module-slider"
+                  value={value.value}
+                  aria-labelledby="label"
+                  min={10}
+                  max={100}
+                  step={2}
+                  onChange={this.editToggle(
+                    currentlyEditing,
+                    fields,
+                    key,
+                    fieldData.module,
+                    fieldData
+                  )}
+                />
+              </Admin>
+            );
+          }
         }
       });
     }
   };
 
-  editSlider = (blockId, blockIndex, key, moduleType, newData) => (e, val) => {
+  editToggle = (blockId, blockIndex, key, moduleType, newData) => (e, val) => {
     const prevChildren = [...this.state.children];
     prevChildren[blockIndex].data[key].value = val;
     console.log(val);
@@ -586,38 +720,16 @@ class App extends Component {
           />
           {this.renderNavEditor()}
           {this.renderModules()}
-          <Editor
-            style={{
-              background: "#F4F5F7",
-              height: "100vh",
-              position: "fixed",
-              opacity: state.edit ? "1" : "0",
-              width: state.edit ? "20%" : "0%",
-              padding: state.edit ? "5%" : "0%"
-            }}
-          >
-            <i
-              onClick={() => this.setState({ edit: false })}
-              className="fal fa-times closer"
-            />
-            <h2>Edit Block</h2>
-
-            {this.renderBlockEditor(state.hero)}
-            <Button
-              style={{
-                background: "#00EADB",
-                color: "rgb(1, 9, 14)",
-                width: "100%",
-                borderRadius: "25px",
-                marginTop: "30px"
-              }}
-              variant="contained"
-              color="primary"
-              onClick={this.saveModule()}
-            >
-              Save
-            </Button>
-          </Editor>
+          <BlockEditor
+            selectMode={this.selectMode}
+            contentMode={state.contentMode}
+            styleMode={state.styleMode}
+            edit={state.edit}
+            hero={state.hero}
+            closeEditor={this.closeEditor}
+            renderBlockEditor={this.renderBlockEditor}
+            saveModule={this.saveModule}
+          />
           {this.renderWrapper()}
         </Container>
       </div>
